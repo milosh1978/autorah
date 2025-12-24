@@ -1,5 +1,5 @@
 # AUTORAH (Vite + React)
-
+VERSION PRUEBA LOCAL:OK
 ## 1) Run locally
 1. Install Node.js 18+
 2. In this folder:
