@@ -41,8 +41,7 @@ export default function VehicleCard({ vehicle, isOwner = false, onAction }) {
       <div className="p-4 flex-1 flex flex-col">
         <div onClick={() => onAction('view', vehicle)} className="cursor-pointer hover:opacity-80 transition-opacity">
           <h3 className="text-lg font-bold text-white">{vehicle.brand} {vehicle.model}</h3>
-          <p className="text-gray-400 text-sm mb-4">{vehicle.plate}</p>
-        </div>
+                 </div>
 
         <div className="space-y-2 text-sm text-gray-500 mb-4">
           <div className="flex justify-between">
