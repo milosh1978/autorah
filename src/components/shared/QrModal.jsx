@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { X, Download, Copy } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
+import QRCode from 'qrcode.react';
+
 export default function QrModal({ qrCodeValue, vehicleId, onClose }) {
   const qrCodeRef = useRef();
   const publicLink = `https://autorah-pasaporte-global-j9756.vercel.app/public/vehicle/${qrCodeValue}`;
