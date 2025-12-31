@@ -26,9 +26,11 @@ export default function ConflictModal({ isOpen, onClose, onClaim, onViewPublic, 
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
             <p className="font-medium text-gray-700 mb-2">Datos coincidentes:</p>
             <ul className="space-y-1 text-gray-600">
+              {/* Placa oculta en vista pública
               {vehicleData?.plate && <li>• Placa: <span className="font-mono font-bold">{vehicleData.plate}</span></li>}
               {vehicleData?.vin && <li>• VIN: <span className="font-mono font-bold">{vehicleData.vin}</span></li>}
               {vehicleData?.engine && <li>• Motor: <span className="font-mono font-bold">{vehicleData.engine}</span></li>}
+              */}
             </ul>
           </div>
 

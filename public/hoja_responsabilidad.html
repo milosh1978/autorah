@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoja de Responsabilidad</title>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.3/dist/umd/supabase.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.4;
+    }
+
+    h2, h3 {
+      margin-top: 20px;
+    }
+
+    .contract {
+      margin: 15px auto;
+      padding: 15px;
+      border: 2px solid #555;
+      border-radius: 10px;
+      background: #f7f7f7;
+      max-width: 1100px;
+    }
+
+    .contract h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .contract-text {
+      background: #fafafa;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      max-height: 350px;
+      overflow-y: auto;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .contract-text p {
+      text-align: justify;
+      margin-bottom: 8px;
+    }
+
+    .contract-text h4 {
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .contract-text ul {
+      margin-left: 20px;
+      margin-bottom: 6px;
+    }
+
+    .contract-text li {
+      margin-bottom: 3px;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 6px;
+      margin: 4px 0;
+      box-sizing: border-box;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    td, th {
+      border: 1px solid #aaa;
+      padding: 4px;
+    }
+
+    canvas {
+      border: 2px solid #000;
+      border-radius: 6px;
+      touch-action: none; /* para que en celular no haga scroll */
+    }
+
+    button {
+      padding: 10px 14px;
+      margin-top: 6px;
+      cursor: pointer;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>IMPORTADORA MARROQUÍN — CENTRO DE SERVICIOS AUTOMOTRICES</h2>
+  <h3>Sucursal Bypass Unicaes – Santa Ana</h3>
+
+  <div class="contract">
+    <h3>MEMORANDO DE EXCLUSIÓN DE RESPONSABILIDAD, CONDICIONES DE SERVICIO Y ACEPTACIÓN DEL CLIENTE</h3>
+
+    <div class="contract-text">
+
+      <p><strong>Por medio del presente documento</strong>, el cliente declara haber sido informado y aceptar las condiciones del servicio prestado por Importadora Marroquín — Sucursal Bypass Unicaes Santa Ana. 
+      Este documento se firma conforme a la Ley de Protección al Consumidor de El Salvador.</p>
+
+      <h4>1. Alcance de la responsabilidad del taller</h4>
+      <ul>
+        <li>Trabajos autorizados y ejecutados.</li>
+        <li>Componentes intervenidos.</li>
+        <li>Repuestos instalados por el taller.</li>
+      </ul>
+
+      <p><strong>No aplica responsabilidad por:</strong> fallas preexistentes, fallas colaterales, desgaste natural o fallas posteriores en componentes no intervenidos.</p>
+
+      <h4>2. Vehículos con desgaste o antigüedad</h4>
+      <p>En vehículos con alto kilometraje o desgaste natural pueden presentarse fallas posteriores en otros componentes. 
+      El cliente reconoce que intervenir una pieza no garantiza el estado del resto del sistema mecánico.</p>
+
+      <h4>3. Mantenimiento vs reparación</h4>
+      <p>Un mantenimiento no equivale a reparación total del sistema ni garantiza que otros componentes no fallen posteriormente.</p>
+
+      <h4>4. Sistemas presurizados y componentes debilitados</h4>
+      <p>No aplica garantía si fallan piezas previamente debilitadas durante pruebas técnicas (mangueras, radiador, sellos, etc.).</p>
+
+      <h4>5. Diagnóstico y pruebas técnicas</h4>
+      <p>El diagnóstico es una evaluación técnica y puede requerir pruebas adicionales o sustitución progresiva de componentes.</p>
+      <p><strong>Costo diagnóstico eléctrico:</strong> desde $50 según complejidad.</p>
+
+      <h4>6. Repuestos</h4>
+      <p>Si el cliente suministra repuestos usados o de baja calidad, el taller no asume responsabilidad.</p>
+
+      <h4>7. Entrega y revisión del vehículo</h4>
+      <p>El cliente debe revisar el vehículo al retirarlo. No se aceptan reclamos posteriores por daños no reportados.</p>
+
+      <h4>8. Prueba de manejo</h4>
+      <p>El cliente autoriza al taller a realizar pruebas antes y después de la reparación.</p>
+
+      <h4>9. Seguridad industrial</h4>
+      <p>No se permite acceso del cliente al área de trabajo.</p>
+
+      <h4>10. Autorización de trabajos</h4>
+      <p>No se ejecutará ningún trabajo sin firma del cliente. No hay devoluciones sobre trabajos realizados.</p>
+
+      <h4>11. Garantía del servicio</h4>
+      <p>Aplica únicamente a mano de obra y repuestos instalados por el taller bajo condiciones normales de uso.</p>
+
+      <p><strong>Declaro que he leído, comprendido y acepto las condiciones del presente documento.</strong></p>
+
+    </div>
+  </div>
+
+  <br>
+
+  <h3>DATOS DEL VEHÍCULO</h3>
+
+  <label for="cliente">Nombre del cliente</label>
+  <input id="cliente">
+
+  <label for="placa">Placa del vehículo</label>
+  <input id="placa">
+
+  <label for="tecnico">Técnico responsable</label>
+  <input id="tecnico">
+
+  <label for="telefono">Teléfono</label>
+  <input id="telefono">
+
+  <label for="fecha">Fecha</label>
+  <input type="date" id="fecha">
+
+  <br>
+
+  <h3>INSPECCIÓN INICIAL DEL VEHÍCULO</h3>
+
+  <table>
+    <tr><th>Elemento</th><th>Estado</th><th>Observaciones</th></tr>
+
+    <tr>
+      <td>Kilometraje</td>
+      <td><input id="km"></td>
+      <td><input id="obs_km"></td>
+    </tr>
+
+    <tr>
+      <td>Nivel de combustible</td>
+      <td>
+        <select id="comb">
+          <option value="Bajo">Bajo</option>
+          <option value="Medio">Medio</option>
+          <option value="Lleno">Lleno</option>
+        </select>
+      </td>
+      <td><input id="obs_comb"></td>
+    </tr>
+
+    <tr>
+      <td>Llantas / desgaste</td>
+      <td>
+        <select id="llantas">
+          <option value="Bueno">Bueno</option>
+          <option value="Regular">Regular</option>
+          <option value="Malo">Malo</option>
+        </select>
+      </td>
+      <td><input id="obs_llantas"></td>
+    </tr>
+
+    <tr>
+      <td>Observaciones del técnico</td>
+      <td colspan="2"><textarea id="obs" rows="3"></textarea></td>
+    </tr>
+  </table>
+
+  <br>
+
+  <h3>FIRMA DEL CLIENTE</h3>
+  <canvas id="pad" width="320" height="180"></canvas><br>
+  <button type="button" onclick="limpiarFirma()">Borrar firma</button>
+
+  <br><br>
+  <button type="button" onclick="guardar()">GUARDAR Y REGISTRAR</button>
+
+  <script>
+    // -------- Canvas de firma (mouse + dedo) --------
+    const pad  = document.getElementById("pad");
+    const ctx  = pad.getContext("2d");
+    let dibujando = false;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap   = "round";
+
+    function getPos(e) {
+      if (e.touches && e.touches.length > 0) {
+        const rect = pad.getBoundingClientRect();
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      } else {
+        return { x: e.offsetX, y: e.offsetY };
+      }
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      dibujando = true;
+      const p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+
+    function moveDraw(e) {
+      if (!dibujando) return;
+      e.preventDefault();
+      const p = getPos(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    function endDraw(e) {
+      e && e.preventDefault();
+      dibujando = false;
+    }
+
+    // Mouse
+    pad.addEventListener("mousedown", startDraw);
+    pad.addEventListener("mousemove", moveDraw);
+    pad.addEventListener("mouseup", endDraw);
+    pad.addEventListener("mouseleave", endDraw);
+
+    // Touch
+    pad.addEventListener("touchstart", startDraw);
+    pad.addEventListener("touchmove", moveDraw);
+    pad.addEventListener("touchend", endDraw);
+    pad.addEventListener("touchcancel", endDraw);
+
+    function limpiarFirma() {
+      ctx.clearRect(0, 0, pad.width, pad.height);
+    }
+
+    // -------- Supabase (lo ponemos DESPUÉS y protegido) --------
+    const SUPABASE_URL = "https://gtjwcutwkwffxdifbsiw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_uZWHVrHu7u5uKxCU67VGoA_pme8HP-C";
+
+    let db = null;
+    try {
+      if (typeof supabase !== "undefined") {
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } else {
+        console.warn("Supabase no cargó.");
+      }
+    } catch (e) {
+      console.warn("Error creando cliente de Supabase:", e);
+    }
+
+    // -------- Guardar en Supabase --------
+    async function guardar() {
+      const cliente  = document.getElementById("cliente").value.trim();
+      const placa    = document.getElementById("placa").value.trim();
+      const tecnico  = document.getElementById("tecnico").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      const fecha    = document.getElementById("fecha").value;
+
+      const km       = document.getElementById("km").value.trim();
+      const comb     = document.getElementById("comb").value;
+      const llantas  = document.getElementById("llantas").value;
+      const obs      = document.getElementById("obs").value.trim();
+
+      if (!placa) {
+        alert("Ingrese la placa del vehículo");
+        return;
+      }
+
+      if (!db) {
+        alert("Supabase no está disponible (¿sin internet?). La firma sí funciona, pero no se puede guardar.");
+        return;
+      }
+
+      try {
+        // 1) Convertir firma a Blob
+        const dataUrl   = pad.toDataURL("image/png");
+        const firmaBlob = await (await fetch(dataUrl)).blob();
+
+        const fileName = `firmas/${placa}_${Date.now()}.png`;
+
+        // 2) Subir firma al bucket "firmas_vehiculos"
+        const { data: uploadData, error: uploadError } =
+          await db.storage.from("firmas_vehiculos").upload(fileName, firmaBlob);
+
+        if (uploadError) {
+          console.error(uploadError);
+          alert("Error subiendo la firma");
+          return;
+        }
+
+        // 3) Insertar registro en tabla hoja_responsabilidad
+        const { error: insertError } = await db
+          .from("hoja_responsabilidad")
+          .insert([{
+            placa: placa,
+            nombre_cliente: cliente,
+            telefono: telefono,
+            kilometraje: km,
+            combustible: comb,
+            estadollantas: llantas,
+            observaciones_tecnico: obs,
+            firmaurl: uploadData.path,
+            // tecnico,
+            // fecha
+          }]);
+
+        if (insertError) {
+          console.error(insertError);
+          alert("Error guardando los datos en la base");
+          return;
+        }
+
+        alert("Documento registrado con éxito 😎");
+        limpiarFirma();
+      } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error inesperado");
+      }
+    }
+  </script>
+
+</body>
+</html>
