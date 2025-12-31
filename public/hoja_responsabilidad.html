@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hoja de Responsabilidad</title>
 
-  <!-- Supabase v2 UMD -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2.45.3/dist/umd/supabase.min.js"></script>
+  <!-- ÚNICO script de Supabase, el bueno -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     body {
@@ -87,7 +87,7 @@
     canvas {
       border: 2px solid #000;
       border-radius: 6px;
-      touch-action: none; /* para que en celular no haga scroll */
+      touch-action: none; /* para que en celular no haga scroll al firmar */
     }
 
     button {
@@ -108,8 +108,8 @@
 
   <div style="text-align:center; margin-bottom: 10px;">
     <img src="LOGO_IMPORTA.png"
-      alt="Logo Importadora Marroquín"
-      style="width: 160px; margin-bottom: 10px;">
+         alt="Logo Importadora Marroquín"
+         style="width: 160px; margin-bottom: 10px;">
   </div>
 
   <h2 style="text-align:center;">
@@ -124,8 +124,7 @@
     <h3>MEMORANDO DE EXCLUSIÓN DE RESPONSABILIDAD, CONDICIONES DE SERVICIO Y ACEPTACIÓN DEL CLIENTE</h3>
 
     <div class="contract-text">
-
-      <p><strong>Por medio del presente documento</strong>, el cliente declara haber sido informado y aceptar las condiciones del servicio prestado por Importadora Marroquín — Sucursal Bypass Unicaes Santa Ana. 
+      <p><strong>Por medio del presente documento</strong>, el cliente declara haber sido informado y aceptar las condiciones del servicio prestado por Importadora Marroquín — Sucursal Bypass Unicaes Santa Ana.
       Este documento se firma conforme a la Ley de Protección al Consumidor de El Salvador.</p>
 
       <h4>1. Alcance de la responsabilidad del taller</h4>
@@ -138,7 +137,7 @@
       <p><strong>No aplica responsabilidad por:</strong> fallas preexistentes, fallas colaterales, desgaste natural o fallas posteriores en componentes no intervenidos.</p>
 
       <h4>2. Vehículos con desgaste o antigüedad</h4>
-      <p>En vehículos con alto kilometraje o desgaste natural pueden presentarse fallas posteriores en otros componentes. 
+      <p>En vehículos con alto kilometraje o desgaste natural pueden presentarse fallas posteriores en otros componentes.
       El cliente reconoce que intervenir una pieza no garantiza el estado del resto del sistema mecánico.</p>
 
       <h4>3. Mantenimiento vs reparación</h4>
@@ -170,7 +169,6 @@
       <p>Aplica únicamente a mano de obra y repuestos instalados por el taller bajo condiciones normales de uso.</p>
 
       <p><strong>Declaro que he leído, comprendido y acepto las condiciones del presente documento.</strong></p>
-
     </div>
   </div>
 
@@ -283,7 +281,7 @@
     }
 
     function endDraw(e) {
-      if (e) e.preventDefault();
+      e && e.preventDefault();
       dibujando = false;
     }
 
@@ -303,17 +301,16 @@
       ctx.clearRect(0, 0, pad.width, pad.height);
     }
 
-    // -------- Supabase (cliente) --------
+    // -------- Supabase --------
     const SUPABASE_URL = "https://gtjwcutwkwffxdifbsiw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_uZWHVrHu7u5uKxCU67VGoA_pme8HP-C";
 
     let db = null;
     try {
       if (typeof supabase !== "undefined") {
-        const { createClient } = supabase;
-        db = createClient(SUPABASE_URL, SUPABASE_KEY);
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       } else {
-        console.warn("Supabase no cargó.");
+        console.warn("Supabase no cargó (script no disponible).");
       }
     } catch (e) {
       console.warn("Error creando cliente de Supabase:", e);
@@ -338,18 +335,15 @@
       }
 
       if (!db) {
-        alert("Supabase no está disponible (¿sin internet?). La firma sí funciona, pero no se puede guardar.");
+        alert("Supabase no está disponible (no se cargó la librería). La firma sí funciona, pero no se puede guardar.");
         return;
       }
 
       try {
-        // 1) Convertir firma a Blob
         const dataUrl   = pad.toDataURL("image/png");
         const firmaBlob = await (await fetch(dataUrl)).blob();
+        const fileName  = `firmas/${placa}_${Date.now()}.png`;
 
-        const fileName = `firmas/${placa}_${Date.now()}.png`;
-
-        // 2) Subir firma al bucket "firmas_vehiculos"
         const { data: uploadData, error: uploadError } =
           await db.storage.from("firmas_vehiculos").upload(fileName, firmaBlob);
 
@@ -359,7 +353,6 @@
           return;
         }
 
-        // 3) Insertar registro en tabla hoja_responsabilidad
         const { error: insertError } = await db
           .from("hoja_responsabilidad")
           .insert([{
@@ -389,6 +382,5 @@
       }
     }
   </script>
-
 </body>
 </html>
