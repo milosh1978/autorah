@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hoja de Responsabilidad</title>
 
+  <!-- Supabase v2 UMD -->
   <script src="https://unpkg.com/@supabase/supabase-js@2.45.3/dist/umd/supabase.min.js"></script>
 
   <style>
@@ -105,20 +106,19 @@
 
 <body>
 
- <div style="text-align:center; margin-bottom: 10px;">
-  <img src="LOGO_IMPORTA.png"
-     alt="Logo Importadora Marroquín"
-     style="width: 160px; margin-bottom: 10px;">
-</div>
+  <div style="text-align:center; margin-bottom: 10px;">
+    <img src="LOGO_IMPORTA.png"
+      alt="Logo Importadora Marroquín"
+      style="width: 160px; margin-bottom: 10px;">
+  </div>
 
-<h2 style="text-align:center;">
-  IMPORTADORA MARROQUÍN — CENTRO DE SERVICIOS AUTOMOTRICES
-</h2>
+  <h2 style="text-align:center;">
+    IMPORTADORA MARROQUÍN — CENTRO DE SERVICIOS AUTOMOTRICES
+  </h2>
 
-<h3 style="text-align:center;">
-  Sucursal Bypass Unicaes – Santa Ana
-</h3>
-
+  <h3 style="text-align:center;">
+    Sucursal Bypass Unicaes – Santa Ana
+  </h3>
 
   <div class="contract">
     <h3>MEMORANDO DE EXCLUSIÓN DE RESPONSABILIDAD, CONDICIONES DE SERVICIO Y ACEPTACIÓN DEL CLIENTE</h3>
@@ -283,7 +283,7 @@
     }
 
     function endDraw(e) {
-      e && e.preventDefault();
+      if (e) e.preventDefault();
       dibujando = false;
     }
 
@@ -303,14 +303,15 @@
       ctx.clearRect(0, 0, pad.width, pad.height);
     }
 
-    // -------- Supabase (lo ponemos DESPUÉS y protegido) --------
+    // -------- Supabase (cliente) --------
     const SUPABASE_URL = "https://gtjwcutwkwffxdifbsiw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_uZWHVrHu7u5uKxCU67VGoA_pme8HP-C";
 
     let db = null;
     try {
       if (typeof supabase !== "undefined") {
-        db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const { createClient } = supabase;
+        db = createClient(SUPABASE_URL, SUPABASE_KEY);
       } else {
         console.warn("Supabase no cargó.");
       }
