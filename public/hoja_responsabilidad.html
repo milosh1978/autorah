@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hoja de Responsabilidad</title>
 
-  <!-- ÚNICO script de Supabase, el bueno -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- jsPDF para generar el PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -316,6 +318,52 @@
       console.warn("Error creando cliente de Supabase:", e);
     }
 
+    // -------- Función para generar PDF --------
+    async function generarPDF(placa, cliente, tecnico, fecha, telefono, km, comb, llantas, obs, firmaDataUrl) {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      // Encabezado
+      pdf.setFontSize(16);
+      pdf.text("IMPORTADORA MARROQUÍN", 10, 15);
+      pdf.setFontSize(12);
+      pdf.text("Centro de Servicios Automotrices - Sucursal Bypass Unicaes, Santa Ana", 10, 22);
+
+      pdf.setFontSize(12);
+      pdf.text(`Cliente: ${cliente}`, 10, 35);
+      pdf.text(`Placa: ${placa}`, 10, 42);
+      pdf.text(`Técnico: ${tecnico}`, 10, 49);
+      pdf.text(`Teléfono: ${telefono}`, 10, 56);
+      pdf.text(`Fecha: ${fecha}`, 10, 63);
+
+      // Datos vehículo
+      pdf.text("Datos de inspección inicial:", 10, 75);
+      pdf.text(`Kilometraje: ${km}`, 10, 82);
+      pdf.text(`Combustible: ${comb}`, 10, 89);
+      pdf.text(`Estado llantas: ${llantas}`, 10, 96);
+      pdf.text("Observaciones del técnico:", 10, 103);
+
+      const obsLines = pdf.splitTextToSize(obs || "-", 180);
+      pdf.text(obsLines, 10, 110);
+
+      // Texto corto del contrato
+      const contratoTexto = `
+El cliente declara que ha sido informado y acepta las condiciones del servicio,
+incluyendo alcances de responsabilidad, diagnóstico, repuestos, garantía y pruebas
+de manejo, según el documento firmado en el taller.`;
+      const contratoLines = pdf.splitTextToSize(contratoTexto, 180);
+      pdf.text("Resumen del acuerdo:", 10, 135);
+      pdf.text(contratoLines, 10, 142);
+
+      // Firma
+      pdf.text("Firma del cliente:", 10, 170);
+      if (firmaDataUrl) {
+        pdf.addImage(firmaDataUrl, "PNG", 10, 175, 80, 40);
+      }
+
+      pdf.save(`Hoja_Responsabilidad_${placa}.pdf`);
+    }
+
     // -------- Guardar en Supabase --------
     async function guardar() {
       const cliente  = document.getElementById("cliente").value.trim();
@@ -340,10 +388,12 @@
       }
 
       try {
+        // Firma como imagen
         const dataUrl   = pad.toDataURL("image/png");
         const firmaBlob = await (await fetch(dataUrl)).blob();
         const fileName  = `firmas/${placa}_${Date.now()}.png`;
 
+        // 1) Subir firma a Supabase
         const { data: uploadData, error: uploadError } =
           await db.storage.from("firmas_vehiculos").upload(fileName, firmaBlob);
 
@@ -353,6 +403,7 @@
           return;
         }
 
+        // 2) Insertar registro en tabla
         const { error: insertError } = await db
           .from("hoja_responsabilidad")
           .insert([{
@@ -373,6 +424,20 @@
           alert("Error guardando los datos en la base");
           return;
         }
+
+        // 3) Generar PDF localmente para respaldo
+        await generarPDF(
+          placa,
+          cliente,
+          tecnico,
+          fecha,
+          telefono,
+          km,
+          comb,
+          llantas,
+          obs,
+          dataUrl
+        );
 
         alert("Documento registrado con éxito 😎");
         limpiarFirma();
