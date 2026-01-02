@@ -283,7 +283,7 @@
     }
 
     function endDraw(e) {
-      e && e.preventDefault();
+      if (e) e.preventDefault();
       dibujando = false;
     }
 
@@ -320,28 +320,35 @@
 
     // ---- Cargar logo como Base64 para el PDF ----
     async function loadImageAsBase64(url) {
-      const res = await fetch(url);
-      const blob = await res.blob();
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
 
-      return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
+        return await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        console.warn("No se pudo cargar el logo:", e);
+        return null;
+      }
     }
 
     // -------- Función para generar PDF --------
     async function generarPDF(placa, cliente, tecnico, fecha, telefono, km, comb, llantas, obs, firmaDataUrl) {
       const { jsPDF } = window.jspdf;
-const pdf = new jsPDF({
-  unit: "mm",
-  format: "a4",
-  compress: true   // 👈 activa compresión interna del PDF
-});
+      const pdf = new jsPDF({
+        unit: "mm",
+        format: "a4",
+        compress: true   // activa compresión interna del PDF
+      });
 
       // Logo
       const logoBase64 = await loadImageAsBase64("LOGO_IMPORTA.png");
-      pdf.addImage(logoBase64, "PNG", 10, 8, 35, 18);
+      if (logoBase64) {
+        pdf.addImage(logoBase64, "PNG", 10, 8, 35, 18);
+      }
 
       pdf.setFontSize(16);
       pdf.text("IMPORTADORA MARROQUÍN", 50, 15);
@@ -430,11 +437,10 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
         y = 40;
       }
       pdf.text("Firma del cliente:", 10, y);
-     if (firmaDataUrl) {
-  pdf.addImage(firmaDataUrl, "JPEG", 10, y + 5, 80, 35);
-}
-        y += 45;
+      if (firmaDataUrl) {
+        pdf.addImage(firmaDataUrl, "JPEG", 10, y + 5, 80, 35);
       }
+      y += 45;
 
       // Devolver blob del PDF
       const pdfBlob = pdf.output("blob");
@@ -465,10 +471,10 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
       }
 
       try {
-               // Firma en JPEG comprimido (calidad 0.6)
-const dataUrl   = pad.toDataURL("image/jpeg", 0.6);
-const firmaBlob = await (await fetch(dataUrl)).blob();
-        const fileName  = `firmas/${placa}_${Date.now()}.png`;
+        // Firma en JPEG comprimido (calidad 0.6)
+        const dataUrl   = pad.toDataURL("image/jpeg", 0.6);
+        const firmaBlob = await (await fetch(dataUrl)).blob();
+        const fileName  = `firmas/${placa}_${Date.now()}.jpg`;
 
         // 1) Subir firma a Supabase
         const { data: uploadData, error: uploadError } =
@@ -480,7 +486,39 @@ const firmaBlob = await (await fetch(dataUrl)).blob();
           return;
         }
 
-        // 2) Insertar registro en tabla
+        // 2) Generar PDF
+        const pdfBlob = await generarPDF(
+          placa,
+          cliente,
+          tecnico,
+          fecha,
+          telefono,
+          km,
+          comb,
+          llantas,
+          obs,
+          dataUrl
+        );
+
+        // 3) Subir PDF a Supabase (bucket: hojas_responsabilidad)
+        try {
+          const pdfFileName = `pdfs/Hoja_Responsabilidad_${placa}_${Date.now()}.pdf`;
+          const { error: pdfError } = await db.storage
+            .from("hojas_responsabilidad")
+            .upload(pdfFileName, pdfBlob, {
+              contentType: "application/pdf"
+            });
+
+          if (pdfError) {
+            console.warn("Error subiendo PDF (bucket 'hojas_responsabilidad'):", pdfError);
+          } else {
+            console.log("PDF subido a Supabase:", pdfFileName);
+          }
+        } catch (e) {
+          console.warn("Problema subiendo PDF a Supabase:", e);
+        }
+
+        // 4) Insertar registro en tabla
         const { error: insertError } = await db
           .from("hoja_responsabilidad")
           .insert([{
@@ -498,38 +536,6 @@ const firmaBlob = await (await fetch(dataUrl)).blob();
           console.error(insertError);
           alert("Error guardando los datos en la base");
           return;
-        }
-
-        // 3) Generar PDF
-        const pdfBlob = await generarPDF(
-          placa,
-          cliente,
-          tecnico,
-          fecha,
-          telefono,
-          km,
-          comb,
-          llantas,
-          obs,
-          dataUrl
-        );
-
-        // 4) Subir PDF a Supabase (bucket: hojas_responsabilidad)
-        try {
-          const pdfFileName = `pdfs/Hoja_Responsabilidad_${placa}_${Date.now()}.pdf`;
-          const { error: pdfError } = await db.storage
-            .from("hojas_responsabilidad")
-            .upload(pdfFileName, pdfBlob, {
-              contentType: "application/pdf"
-            });
-
-          if (pdfError) {
-            console.warn("Error subiendo PDF (bucket 'hojas_responsabilidad'):", pdfError);
-          } else {
-            console.log("PDF subido a Supabase:", pdfFileName);
-          }
-        } catch (e) {
-          console.warn("Problema subiendo PDF a Supabase:", e);
         }
 
         // 5) Descargar PDF localmente
