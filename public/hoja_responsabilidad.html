@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
   <title>Hoja de Responsabilidad</title>
 
   <!-- Supabase -->
@@ -15,6 +16,8 @@
       font-family: Arial, sans-serif;
       padding: 20px;
       line-height: 1.4;
+      background-color: #ffffff; /* siempre blanco */
+      color: #000000;
     }
 
     h2, h3 {
@@ -90,6 +93,7 @@
       border: 2px solid #000;
       border-radius: 6px;
       touch-action: none; /* para que en celular no haga scroll al firmar */
+      background-color: #ffffff; /* por si acaso */
     }
 
     button {
@@ -251,8 +255,18 @@
     const ctx  = pad.getContext("2d");
     let dibujando = false;
 
+    // estilo del trazo
     ctx.lineWidth = 2;
     ctx.lineCap   = "round";
+    ctx.strokeStyle = "#000000";
+
+    // Fondo blanco para que se vea en modo oscuro y en el PDF
+    function initCanvasBackground() {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, pad.width, pad.height);
+      ctx.strokeStyle = "#000000";
+    }
+    initCanvasBackground();
 
     function getPos(e) {
       if (e.touches && e.touches.length > 0) {
@@ -301,6 +315,7 @@
 
     function limpiarFirma() {
       ctx.clearRect(0, 0, pad.width, pad.height);
+      initCanvasBackground();
     }
 
     // -------- Supabase --------
@@ -341,7 +356,7 @@
       const pdf = new jsPDF({
         unit: "mm",
         format: "a4",
-        compress: true   // activa compresión interna del PDF
+        compress: true
       });
 
       // Logo
@@ -438,11 +453,11 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
       }
       pdf.text("Firma del cliente:", 10, y);
       if (firmaDataUrl) {
-        pdf.addImage(firmaDataUrl, "JPEG", 10, y + 5, 80, 35);
+        // usar PNG para evitar manchón negro
+        pdf.addImage(firmaDataUrl, "PNG", 10, y + 5, 80, 35);
       }
       y += 45;
 
-      // Devolver blob del PDF
       const pdfBlob = pdf.output("blob");
       return pdfBlob;
     }
@@ -471,10 +486,10 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
       }
 
       try {
-        // Firma en JPEG comprimido (calidad 0.6)
-        const dataUrl   = pad.toDataURL("image/jpeg", 0.6);
+        // Firma en PNG (canvas pequeño, pesa poco)
+        const dataUrl   = pad.toDataURL("image/png");
         const firmaBlob = await (await fetch(dataUrl)).blob();
-        const fileName  = `firmas/${placa}_${Date.now()}.jpg`;
+        const fileName  = `firmas/${placa}_${Date.now()}.png`;
 
         // 1) Subir firma a Supabase
         const { data: uploadData, error: uploadError } =
