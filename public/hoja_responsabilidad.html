@@ -317,78 +317,124 @@
     } catch (e) {
       console.warn("Error creando cliente de Supabase:", e);
     }
-async function loadImageAsBase64(url) {
-  const res = await fetch(url);
-  const blob = await res.blob();
 
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-}
+    // ---- Cargar logo como Base64 para el PDF ----
+    async function loadImageAsBase64(url) {
+      const res = await fetch(url);
+      const blob = await res.blob();
+
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    }
+
     // -------- Función para generar PDF --------
- async function generarPDF(placa, cliente, tecnico, fecha, telefono, km, comb, llantas, obs, firmaDataUrl) {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+    async function generarPDF(placa, cliente, tecnico, fecha, telefono, km, comb, llantas, obs, firmaDataUrl) {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
 
-  // 👇 Convertir LOGO a Base64
-  const logoBase64 = await loadImageAsBase64("LOGO_IMPORTA.png");
+      // Logo
+      const logoBase64 = await loadImageAsBase64("LOGO_IMPORTA.png");
+      pdf.addImage(logoBase64, "PNG", 10, 8, 35, 18);
 
-  // Insertar logo
-  pdf.addImage(logoBase64, "PNG", 10, 8, 35, 18);
+      pdf.setFontSize(16);
+      pdf.text("IMPORTADORA MARROQUÍN", 50, 15);
+      pdf.setFontSize(12);
+      pdf.text("Centro de Servicios Automotrices - Sucursal Bypass Unicaes, Santa Ana", 50, 22);
 
-  pdf.setFontSize(16);
-  pdf.text("IMPORTADORA MARROQUÍN", 50, 15);
-  pdf.setFontSize(12);
-  pdf.text("Centro de Servicios Automotrices - Sucursal Bypass Unicaes, Santa Ana", 50, 22);
+      // Datos generales
+      pdf.text(`Cliente: ${cliente}`, 10, 35);
+      pdf.text(`Placa: ${placa}`, 10, 42);
+      pdf.text(`Técnico: ${tecnico}`, 10, 49);
+      pdf.text(`Teléfono: ${telefono}`, 10, 56);
+      pdf.text(`Fecha: ${fecha}`, 10, 63);
 
-  pdf.text(`Cliente: ${cliente}`, 10, 35);
-  pdf.text(`Placa: ${placa}`, 10, 42);
-  pdf.text(`Técnico: ${tecnico}`, 10, 49);
-  pdf.text(`Teléfono: ${telefono}`, 10, 56);
-  pdf.text(`Fecha: ${fecha}`, 10, 63);
+      // Datos del vehículo
+      pdf.text("Datos de inspección inicial:", 10, 75);
+      pdf.text(`Kilometraje: ${km}`, 10, 82);
+      pdf.text(`Combustible: ${comb}`, 10, 89);
+      pdf.text(`Estado llantas: ${llantas}`, 10, 96);
+      pdf.text("Observaciones del técnico:", 10, 103);
 
-  // Datos del vehículo
-  pdf.text("Datos de inspección inicial:", 10, 75);
-  pdf.text(`Kilometraje: ${km}`, 10, 82);
-  pdf.text(`Combustible: ${comb}`, 10, 89);
-  pdf.text(`Estado llantas: ${llantas}`, 10, 96);
-  pdf.text("Observaciones del técnico:", 10, 103);
+      const obsLines = pdf.splitTextToSize(obs || "-", 180);
+      pdf.text(obsLines, 10, 110);
 
-  const obsLines = pdf.splitTextToSize(obs || "-", 180);
-  pdf.text(obsLines, 10, 110);
+      // -------- TEXTO COMPLETO DEL CONTRATO --------
+      let y = 140;
+      pdf.setFontSize(11);
+      pdf.text("Resumen del acuerdo:", 10, y);
+      y += 6;
 
-  // ====== CLAUSULAS RESUMIDAS DEL CONTRATO ======
-  const resumenAcuerdo = `
-El cliente declara que ha sido informado y acepta las condiciones del servicio prestado por Importadora Marroquín — Sucursal Bypass Unicaes Santa Ana, conforme al memorando firmado en el taller, en especial:
+      const contratoTexto =
+`Por medio del presente documento, el cliente declara haber sido informado y aceptar las condiciones del servicio prestado por Importadora Marroquín — Sucursal Bypass Unicaes Santa Ana. Este documento se firma conforme a la Ley de Protección al Consumidor de El Salvador.
 
-1) La responsabilidad del taller se limita a los trabajos autorizados y ejecutados, a los componentes intervenidos y a los repuestos instalados por el taller.
+1. Alcance de la responsabilidad del taller
+Trabajos autorizados y ejecutados.
+Componentes intervenidos.
+Repuestos instalados por el taller.
+No aplica responsabilidad por: fallas preexistentes, fallas colaterales, desgaste natural o fallas posteriores en componentes no intervenidos.
 
-2) No se asume responsabilidad por fallas preexistentes, fallas colaterales, desgaste natural ni fallas posteriores en componentes no intervenidos.
+2. Vehículos con desgaste o antigüedad
+En vehículos con alto kilometraje o desgaste natural pueden presentarse fallas posteriores en otros componentes. El cliente reconoce que intervenir una pieza no garantiza el estado del resto del sistema mecánico.
 
-3) En vehículos con alto kilometraje o desgaste natural pueden presentarse fallas posteriores en otros sistemas, aun después de la reparación.
+3. Mantenimiento vs reparación
+Un mantenimiento no equivale a reparación total del sistema ni garantiza que otros componentes no fallen posteriormente.
 
-4) El mantenimiento realizado no equivale a reparación total del sistema ni garantiza que otros componentes no fallen posteriormente.
+4. Sistemas presurizados y componentes debilitados
+No aplica garantía si fallan piezas previamente debilitadas durante pruebas técnicas (mangueras, radiador, sellos, etc.).
 
-5) Durante diagnósticos y pruebas (incluyendo sistemas presurizados) pueden fallar piezas previamente debilitadas como mangueras, radiadores, sellos u otros componentes.
+5. Diagnóstico y pruebas técnicas
+El diagnóstico es una evaluación técnica y puede requerir pruebas adicionales o sustitución progresiva de componentes. Costo diagnóstico eléctrico: desde $50 según complejidad.
 
-6) El cliente ha sido informado sobre las condiciones del diagnóstico, pruebas de manejo, uso de repuestos, restricciones de acceso al área de trabajo y condiciones de la garantía del servicio.
+6. Repuestos
+Si el cliente suministra repuestos usados o de baja calidad, el taller no asume responsabilidad.
 
-Declaro que he leído, comprendido y acepto estas condiciones.`;
+7. Entrega y revisión del vehículo
+El cliente debe revisar el vehículo al retirarlo. No se aceptan reclamos posteriores por daños no reportados.
 
-  pdf.text("Resumen del acuerdo:", 10, 135);
-  const clausulas = pdf.splitTextToSize(resumenAcuerdo, 180);
-  pdf.text(clausulas, 10, 142);
+8. Prueba de manejo
+El cliente autoriza al taller a realizar pruebas antes y después de la reparación.
 
-  // Firma
-  pdf.text("Firma del cliente:", 10, 265);
-  if (firmaDataUrl) {
-    pdf.addImage(firmaDataUrl, "PNG", 10, 270, 80, 35);
-  }
+9. Seguridad industrial
+No se permite acceso del cliente al área de trabajo.
 
-  pdf.save(`Hoja_Responsabilidad_${placa}.pdf`);
-}
+10. Autorización de trabajos
+No se ejecutará ningún trabajo sin firma del cliente. No hay devoluciones sobre trabajos realizados.
+
+11. Garantía del servicio
+Aplica únicamente a mano de obra y repuestos instalados por el taller bajo condiciones normales de uso.
+
+Declaro que he leído, comprendido y acepto las condiciones del presente documento.`;
+
+      const contratoLines = pdf.splitTextToSize(contratoTexto, 180);
+      const lineHeight = 4;
+
+      contratoLines.forEach(line => {
+        if (y > 270) {
+          pdf.addPage();
+          y = 20;
+        }
+        pdf.text(line, 10, y);
+        y += lineHeight;
+      });
+
+      // Firma
+      if (y > 250) {
+        pdf.addPage();
+        y = 40;
+      }
+      pdf.text("Firma del cliente:", 10, y);
+      if (firmaDataUrl) {
+        pdf.addImage(firmaDataUrl, "PNG", 10, y + 5, 80, 35);
+        y += 45;
+      }
+
+      // Devolver blob del PDF
+      const pdfBlob = pdf.output("blob");
+      return pdfBlob;
+    }
 
     // -------- Guardar en Supabase --------
     async function guardar() {
@@ -441,8 +487,6 @@ Declaro que he leído, comprendido y acepto estas condiciones.`;
             estadollantas: llantas,
             observaciones_tecnico: obs,
             firmaurl: uploadData.path,
-            // tecnico,
-            // fecha
           }]);
 
         if (insertError) {
@@ -451,8 +495,8 @@ Declaro que he leído, comprendido y acepto estas condiciones.`;
           return;
         }
 
-        // 3) Generar PDF localmente para respaldo
-        await generarPDF(
+        // 3) Generar PDF
+        const pdfBlob = await generarPDF(
           placa,
           cliente,
           tecnico,
@@ -464,6 +508,34 @@ Declaro que he leído, comprendido y acepto estas condiciones.`;
           obs,
           dataUrl
         );
+
+        // 4) Subir PDF a Supabase (bucket: hojas_responsabilidad)
+        try {
+          const pdfFileName = `pdfs/Hoja_Responsabilidad_${placa}_${Date.now()}.pdf`;
+          const { error: pdfError } = await db.storage
+            .from("hojas_responsabilidad")
+            .upload(pdfFileName, pdfBlob, {
+              contentType: "application/pdf"
+            });
+
+          if (pdfError) {
+            console.warn("Error subiendo PDF (bucket 'hojas_responsabilidad'):", pdfError);
+          } else {
+            console.log("PDF subido a Supabase:", pdfFileName);
+          }
+        } catch (e) {
+          console.warn("Problema subiendo PDF a Supabase:", e);
+        }
+
+        // 5) Descargar PDF localmente
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Hoja_Responsabilidad_${placa}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
         alert("Documento registrado con éxito 😎");
         limpiarFirma();
