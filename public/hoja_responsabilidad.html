@@ -333,7 +333,11 @@
     // -------- Función para generar PDF --------
     async function generarPDF(placa, cliente, tecnico, fecha, telefono, km, comb, llantas, obs, firmaDataUrl) {
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
+const pdf = new jsPDF({
+  unit: "mm",
+  format: "a4",
+  compress: true   // 👈 activa compresión interna del PDF
+});
 
       // Logo
       const logoBase64 = await loadImageAsBase64("LOGO_IMPORTA.png");
@@ -426,8 +430,9 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
         y = 40;
       }
       pdf.text("Firma del cliente:", 10, y);
-      if (firmaDataUrl) {
-        pdf.addImage(firmaDataUrl, "PNG", 10, y + 5, 80, 35);
+     if (firmaDataUrl) {
+  pdf.addImage(firmaDataUrl, "JPEG", 10, y + 5, 80, 35);
+}
         y += 45;
       }
 
@@ -460,9 +465,9 @@ Declaro que he leído, comprendido y acepto las condiciones del presente documen
       }
 
       try {
-        // Firma como imagen
-        const dataUrl   = pad.toDataURL("image/png");
-        const firmaBlob = await (await fetch(dataUrl)).blob();
+               // Firma en JPEG comprimido (calidad 0.6)
+const dataUrl   = pad.toDataURL("image/jpeg", 0.6);
+const firmaBlob = await (await fetch(dataUrl)).blob();
         const fileName  = `firmas/${placa}_${Date.now()}.png`;
 
         // 1) Subir firma a Supabase
